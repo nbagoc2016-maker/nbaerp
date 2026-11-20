@@ -30,8 +30,14 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+<<<<<<< HEAD
 # env files (can opt-in for committing if needed)
 .env*
+=======
+# local env files
+.env*.local
+.env
+>>>>>>> 8ae5d8b11c17415ea2c1bcf766ea3e299c4c18bc
 
 # vercel
 .vercel
@@ -40,7 +46,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+<<<<<<< HEAD
 # local embedded database
 /.data
 
 .env*
+=======
+# cache
+.cache
+.eslintcache
+.turbo
+.swc
+>>>>>>> 8ae5d8b11c17415ea2c1bcf766ea3e299c4c18bc
