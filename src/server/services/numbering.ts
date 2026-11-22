@@ -41,10 +41,10 @@ export async function nextNumber(db: DbOrTx, key: SeriesKey): Promise<string> {
     .insert(numberSeries)
     .values({ key, label: def.label, prefix: def.prefix, nextNumber: 1, padding: 5 })
     .onConflictDoNothing();
-  const result = await db.execute<{ prefix: string; n: number; padding: number }>(
+  const result = (await db.execute<{ prefix: string; n: number; padding: number }>(
     sql`update number_series set next_number = next_number + 1 where key = ${key}
         returning prefix, next_number - 1 as n, padding`
-  );
-  const row = result.rows[0];
+  )) as unknown as { prefix: string; n: number; padding: number }[] | { rows: { prefix: string; n: number; padding: number }[] };
+  const row = Array.isArray(result) ? result[0] : result.rows[0];
   return `${row.prefix}${String(row.n).padStart(row.padding, "0")}`;
 }

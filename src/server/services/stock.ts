@@ -63,10 +63,11 @@ export async function moveStock(db: DbOrTx, actor: Actor | null, input: MoveStoc
     .insert(stockBalances)
     .values({ productId: input.productId, warehouseId: input.warehouseId, qty: 0, avgCost: 0 })
     .onConflictDoNothing();
-  const locked = await db.execute<{ qty: string; avg_cost: string }>(
+  const locked = (await db.execute<{ qty: string; avg_cost: string }>(
     sql`select qty, avg_cost from stock_balances where product_id = ${input.productId} and warehouse_id = ${input.warehouseId} for update`
-  );
-  const current = { qty: Number(locked.rows[0].qty), avgCost: Number(locked.rows[0].avg_cost) };
+  )) as unknown as { qty: string; avg_cost: string }[] | { rows: { qty: string; avg_cost: string }[] };
+  const row = Array.isArray(locked) ? locked[0] : locked.rows[0];
+  const current = { qty: Number(row.qty), avgCost: Number(row.avg_cost) };
 
   let unitCost: number;
   let newQty = round3(current.qty + qty);

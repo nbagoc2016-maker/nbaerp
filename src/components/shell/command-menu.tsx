@@ -22,16 +22,16 @@ export function CommandMenu({ permissions }: { permissions: string[] }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((o) => !o);
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, []);
+  // useEffect(() => {
+  //   const onKey = (e: KeyboardEvent) => {
+  //     if (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey)) {
+  //       e.preventDefault();
+  //       setOpen((o) => !o);
+  //     }
+  //   };
+  //   document.addEventListener("keydown", onKey);
+  //   return () => document.removeEventListener("keydown", onKey);
+  // }, []);
 
   const go = (href: string) => {
     setOpen(false);

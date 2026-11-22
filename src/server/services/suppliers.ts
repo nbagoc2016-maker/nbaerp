@@ -36,7 +36,7 @@ export async function createSupplier(db: DbOrTx, actor: Actor | null, raw: Suppl
   const code = input.code ?? (await nextNumber(db, "SUPP"));
   const [dupe] = await db.select({ id: suppliers.id }).from(suppliers).where(eq(suppliers.code, code));
   if (dupe) throw new AppError(`Supplier code ${code} is already used`, { code: "Already used" });
-
+  console.log("input", input)
   const [row] = await db
     .insert(suppliers)
     .values({
@@ -57,6 +57,8 @@ export async function createSupplier(db: DbOrTx, actor: Actor | null, raw: Suppl
       isActive: input.isActive,
     })
     .returning();
+
+  console.log("row", row)
 
   if (row.openingBalance > 0) await postOpening(db, actor, row, row.openingBalance, input.openingDate ?? today());
 
