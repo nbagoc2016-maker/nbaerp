@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Combobox } from "@/components/app/combobox";
-import { today } from "@/lib/format";
+import { round3, today } from "@/lib/format";
+
 
 export interface WorkOrderFormProps {
   initial?: {
@@ -24,6 +25,7 @@ export interface WorkOrderFormProps {
     productId: string;
     targetQty: number;
     warehouseId: string;
+    machineTypeId?: string | null;
     laborCost?: number;
     overheadCost?: number;
     notes?: string | null;
@@ -31,10 +33,11 @@ export interface WorkOrderFormProps {
   };
   products: { id: string; name: string; sku: string; unit: string }[];
   warehouses: { id: string; name: string }[];
-  boms: { id: string; name: string; number: string; productId: string; outputQty: number; laborCost: number; overheadCost: number }[];
+  bomsAndLines: { id: string; name: string; number: string; productId: string; outputQty: number; laborCost: number; overheadCost: number; lines: { productId: string; qty: number; scrapPct: number; notes: string | null }[] }[];
+  machineTypes: { id: string; code: string; name: string }[];
 }
 
-export function WorkOrderForm({ initial, products, warehouses, boms }: WorkOrderFormProps) {
+export function WorkOrderForm({ initial, products, warehouses, bomsAndLines, machineTypes }: WorkOrderFormProps) {
   const router = useRouter();
   const [date, setDate] = useState(initial?.date ?? today());
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? "");
@@ -42,6 +45,7 @@ export function WorkOrderForm({ initial, products, warehouses, boms }: WorkOrder
   const [productId, setProductId] = useState(initial?.productId ?? "");
   const [targetQty, setTargetQty] = useState(initial?.targetQty ? String(initial.targetQty) : "1");
   const [warehouseId, setWarehouseId] = useState(initial?.warehouseId ?? (warehouses[0]?.id ?? ""));
+  const [machineTypeId, setMachineTypeId] = useState(initial?.machineTypeId ?? "");
   const [laborCost, setLaborCost] = useState(initial?.laborCost ? String(initial.laborCost) : "0");
   const [overheadCost, setOverheadCost] = useState(initial?.overheadCost ? String(initial.overheadCost) : "0");
   const [notes, setNotes] = useState(initial?.notes ?? "");
@@ -63,18 +67,29 @@ export function WorkOrderForm({ initial, products, warehouses, boms }: WorkOrder
     label: w.name,
   }));
 
-  const bomOptions = boms.map((b) => ({
+  const bomOptions = bomsAndLines.map((b) => ({
     value: b.id,
     label: `${b.name} (${b.number})`,
+  }));
+
+  const machineOptions = machineTypes.map((m) => ({
+    value: m.id,
+    label: `${m.name} (${m.code})`,
   }));
 
   const onBomChange = async (selectedBomId: string) => {
     setBomId(selectedBomId);
     if (!selectedBomId) return;
-    const selected = boms.find((b) => b.id === selectedBomId);
+    const selected = bomsAndLines.find((b) => b.id === selectedBomId);
     if (selected) {
       setProductId(selected.productId);
       const ratio = Number(targetQty) / (selected.outputQty || 1);
+      setLines(
+        selected.lines.map((s) => {
+          const plannedQty = round3(s.qty * (1 + (s.scrapPct || 0) / 100) * ratio);
+          return { productId: s.productId, plannedQty, actualQty: plannedQty, notes: s.notes };
+        })
+      );
       setLaborCost(String(Math.round(selected.laborCost * ratio * 100) / 100));
       setOverheadCost(String(Math.round(selected.overheadCost * ratio * 100) / 100));
     }
@@ -93,6 +108,26 @@ export function WorkOrderForm({ initial, products, warehouses, boms }: WorkOrder
     const updated = [...lines];
     updated[index] = { ...updated[index], [field]: value ?? "" };
     setLines(updated);
+  };
+
+  const handleTargetQtyChange = (value: string) => {
+    const prevQty = Number(targetQty);
+    setTargetQty(value);
+    const nextQty = Number(value);
+    const bom = bomsAndLines.find((b) => b.id === bomId);
+    if (!bom || !prevQty || !nextQty || prevQty === nextQty) return;
+
+    const ratio = nextQty / (bom.outputQty || 1);
+    const factor = nextQty / prevQty;
+    setLines((prev) =>
+      prev.map((l) => {
+        const bl = bom.lines.find((s) => s.productId === l.productId);
+        const plannedQty = bl
+          ? round3(bl.qty * (1 + (bl.scrapPct || 0) / 100) * ratio)
+          : round3(Number(l.plannedQty) * factor);
+        return { ...l, plannedQty, actualQty: plannedQty };
+      })
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,6 +149,7 @@ export function WorkOrderForm({ initial, products, warehouses, boms }: WorkOrder
         productId,
         targetQty: Number(targetQty),
         warehouseId,
+        machineTypeId: machineTypeId || undefined,
         laborCost: Number(laborCost),
         overheadCost: Number(overheadCost),
         notes,
@@ -185,11 +221,20 @@ export function WorkOrderForm({ initial, products, warehouses, boms }: WorkOrder
             <Label>Target Output Quantity</Label>
             <Input
               type="number"
-              step="any"
+              step="any"  
               min="0.001"
               value={targetQty}
-              onChange={(e) => setTargetQty(e.target.value)}
+              onChange={(e) => handleTargetQtyChange(e.target.value)}
               required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Machine Type (Optional)</Label>
+            <Combobox
+              options={machineOptions}
+              value={machineTypeId}
+              onChange={(v) => setMachineTypeId(v ?? "")}
+              placeholder="Select machine..."
             />
           </div>
           <div className="space-y-2">

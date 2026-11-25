@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/app/page-header";
 import { WorkOrderForm } from "@/components/production/work-order-form";
 import { requirePermission } from "@/server/auth";
 import { productOptions, warehouseOptions } from "@/server/queries/options";
-import { getWorkOrder, listBoms } from "@/server/queries/production";
+import { getWorkOrder, listMachineTypes, listbomandlines } from "@/server/queries/production";
 
 export default async function EditWorkOrderPage({ params }: { params: Promise<{ id: string }> }) {
   await requirePermission("production.manage");
@@ -11,10 +11,11 @@ export default async function EditWorkOrderPage({ params }: { params: Promise<{ 
   const data = await getWorkOrder(id);
   if (!data) notFound();
 
-  const [products, warehouses, boms] = await Promise.all([
+  const [products, warehouses, bomsAndLines, machineTypes] = await Promise.all([
     productOptions({ mode: "purchase" }),
     warehouseOptions(),
-    listBoms(),
+    listbomandlines(),
+    listMachineTypes(),
   ]);
 
   return (
@@ -27,7 +28,8 @@ export default async function EditWorkOrderPage({ params }: { params: Promise<{ 
       <WorkOrderForm
         products={products}
         warehouses={warehouses.map((w) => ({ id: w.value, name: w.label }))}
-        boms={boms}
+        bomsAndLines={bomsAndLines.boms}
+        machineTypes={machineTypes}
         initial={{
           id: data.order.id,
           number: data.order.number,
@@ -37,6 +39,7 @@ export default async function EditWorkOrderPage({ params }: { params: Promise<{ 
           productId: data.order.productId,
           targetQty: data.order.targetQty,
           warehouseId: data.order.warehouseId,
+          machineTypeId: data.order.machineTypeId,
           laborCost: data.order.laborCost,
           overheadCost: data.order.overheadCost,
           notes: data.order.notes,

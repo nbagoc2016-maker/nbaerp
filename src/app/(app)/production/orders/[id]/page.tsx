@@ -89,6 +89,14 @@ export default async function WorkOrderDetailPage({ params }: { params: Promise<
               <span className="text-muted-foreground">Warehouse: </span>
               <span className="font-medium">{o.warehouseName}</span>
             </div>
+            {o.machineTypeName && (
+              <div>
+                <span className="text-muted-foreground">Machine Type: </span>
+                <span className="font-medium">
+                  {o.machineTypeName}{o.machineTypeCode ? ` (${o.machineTypeCode})` : ""}
+                </span>
+              </div>
+            )}
           </CardContent>
         </Card>
 

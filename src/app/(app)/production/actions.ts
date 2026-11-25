@@ -7,6 +7,7 @@ import {
   completeWorkOrder,
   confirmWorkOrder,
   saveBom,
+  saveMachineType,
   saveWorkOrder,
 } from "@/server/services/production";
 
@@ -49,6 +50,7 @@ const zSaveWorkOrder = z.object({
   productId: z.string().min(1, "Select product to manufacture"),
   targetQty: z.coerce.number().positive("Target quantity must be greater than 0"),
   warehouseId: z.string().min(1, "Select warehouse"),
+  machineTypeId: z.string().optional().or(z.literal("")),
   laborCost: z.coerce.number().min(0).optional(),
   overheadCost: z.coerce.number().min(0).optional(),
   notes: z.string().trim().optional(),
@@ -93,4 +95,30 @@ export const completeWorkOrderAction = action(
     revalidate: ["/production", "/production/orders", "/inventory", "/accounting"],
   },
   async (input, { tx, actor }) => completeWorkOrder(tx, actor, input)
+);
+
+const zSaveMachineType = z.object({
+  id: z.string().optional(),
+  code: z.string().trim().max(50).optional().or(z.literal("")),
+  name: z.string().trim().min(1, "Machine type name is required"),
+  description: z.string().trim().optional().or(z.literal("")),
+  capacity: z.coerce.number().min(0).optional().or(z.literal("")),
+  isActive: z.boolean().default(true),
+});
+
+export const saveMachineTypeAction = action(
+  {
+    permission: "production.manage",
+    schema: zSaveMachineType,
+    revalidate: ["/production", "/production/machines", "/production/machine-report"],
+  },
+  async (input, { tx, actor }) =>
+    saveMachineType(tx, actor, {
+      id: input.id,
+      code: input.code || undefined,
+      name: input.name,
+      description: input.description || null,
+      capacity: input.capacity === "" || input.capacity == null ? null : Number(input.capacity),
+      isActive: input.isActive,
+    })
 );

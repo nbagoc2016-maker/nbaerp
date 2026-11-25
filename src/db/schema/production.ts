@@ -3,6 +3,19 @@ import { createdAt, day, id, money, qty } from "./_helpers";
 import { users } from "./core";
 import { products, warehouses } from "./masters";
 
+// ---- Machine Types -----------------------------------------------------------------------------
+
+export const machineTypes = pgTable("machine_types", {
+  id: id(),
+  code: text("code").notNull().unique(),   // e.g. MT-001
+  name: text("name").notNull(),             // e.g. "Tube Drawing Machine"
+  description: text("description"),
+  capacity: qty("capacity"),               // optional: units/hour
+  isActive: boolean("is_active").notNull().default(true),
+  createdBy: text("created_by").references(() => users.id, { onDelete: "set null" }),
+  createdAt: createdAt(),
+});
+
 // ---- Bill of Materials (BOM) ------------------------------------------------------------------
 
 export const bom = pgTable(
@@ -66,6 +79,7 @@ export const workOrders = pgTable(
     materialCost: money("material_cost").notNull().default(0),
     totalCost: money("total_cost").notNull().default(0),
     unitCost: money("unit_cost").notNull().default(0),
+    machineTypeId: text("machine_type_id").references(() => machineTypes.id, { onDelete: "set null" }),
     journalEntryId: text("journal_entry_id"),
     completedAt: day("completed_at"),
     notes: text("notes"),

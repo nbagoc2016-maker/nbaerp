@@ -31,6 +31,7 @@ export const SERIES = {
   SKU: { label: "Product SKU", prefix: "P-" },
   BOM: { label: "Bill of Materials", prefix: "BOM-" },
   WO: { label: "Work Order", prefix: "WO-" },
+  MT: { label: "Machine Type", prefix: "MT-" },
 } as const;
 
 export type SeriesKey = keyof typeof SERIES;

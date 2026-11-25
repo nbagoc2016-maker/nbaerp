@@ -3,6 +3,7 @@ import type { DbOrTx } from "@/db/client";
 import {
   bom,
   bomLines,
+  machineTypes,
   products,
   warehouses,
   workOrderLines,
@@ -16,6 +17,58 @@ import { logAudit } from "./audit";
 import { ACC } from "./chart-of-accounts";
 import { nextNumber } from "./numbering";
 import { moveStock } from "./stock";
+
+// ---- Machine Types -----------------------------------------------------------------------------
+
+export interface SaveMachineTypeInput {
+  id?: string;
+  code?: string | null;
+  name: string;
+  description?: string | null;
+  capacity?: number | null;
+  isActive?: boolean;
+}
+
+export async function saveMachineType(db: DbOrTx, actor: Actor | null, input: SaveMachineTypeInput) {
+  if (!input.name?.trim()) throw new AppError("Machine type name is required");
+
+  if (input.id) {
+    const [existing] = await db.select().from(machineTypes).where(eq(machineTypes.id, input.id));
+    if (!existing) throw new AppError("Machine type not found");
+
+    await db
+      .update(machineTypes)
+      .set({
+        name: input.name.trim(),
+        description: input.description ?? null,
+        capacity: input.capacity != null && input.capacity > 0 ? round3(input.capacity) : null,
+        isActive: input.isActive ?? true,
+      })
+      .where(eq(machineTypes.id, input.id));
+
+    await logAudit(db, actor, { action: "update", entity: "machine_type", entityId: input.id, summary: `Updated machine type ${existing.code}` });
+    return { id: input.id, number: existing.code };
+  }
+
+  const number = input.code?.trim() || (await nextNumber(db, "MT"));
+  const [dup] = await db.select({ id: machineTypes.id }).from(machineTypes).where(eq(machineTypes.code, number));
+  if (dup) throw new AppError(`Machine type code ${number} already exists`);
+
+  const [row] = await db
+    .insert(machineTypes)
+    .values({
+      code: number,
+      name: input.name.trim(),
+      description: input.description ?? null,
+      capacity: input.capacity != null && input.capacity > 0 ? round3(input.capacity) : null,
+      isActive: input.isActive ?? true,
+      createdBy: actor?.id ?? null,
+    })
+    .returning();
+
+  await logAudit(db, actor, { action: "create", entity: "machine_type", entityId: row.id, summary: `Created machine type ${number}` });
+  return { id: row.id, number };
+}
 
 // ---- BOM Service -------------------------------------------------------------------------------
 
@@ -119,6 +172,7 @@ export interface SaveWorkOrderInput {
   productId: string;
   targetQty: number;
   warehouseId: string;
+  machineTypeId?: string | null;
   laborCost?: number;
   overheadCost?: number;
   notes?: string | null;
@@ -130,6 +184,11 @@ export async function saveWorkOrder(db: DbOrTx, actor: Actor | null, input: Save
   if (!product) throw new AppError("Product not found");
   const [warehouse] = await db.select().from(warehouses).where(eq(warehouses.id, input.warehouseId));
   if (!warehouse) throw new AppError("Warehouse not found");
+
+  if (input.machineTypeId) {
+    const [mt] = await db.select().from(machineTypes).where(eq(machineTypes.id, input.machineTypeId));
+    if (!mt) throw new AppError("Machine type not found");
+  }
 
   if (input.targetQty <= 0) throw new AppError("Target quantity must be greater than zero");
 
@@ -153,6 +212,7 @@ export async function saveWorkOrder(db: DbOrTx, actor: Actor | null, input: Save
         productId: input.productId,
         targetQty: round3(input.targetQty),
         warehouseId: input.warehouseId,
+        machineTypeId: input.machineTypeId || null,
         laborCost: round2(input.laborCost ?? 0),
         overheadCost: round2(input.overheadCost ?? 0),
         notes: input.notes ?? null,
@@ -173,6 +233,7 @@ export async function saveWorkOrder(db: DbOrTx, actor: Actor | null, input: Save
         productId: input.productId,
         targetQty: round3(input.targetQty),
         warehouseId: input.warehouseId,
+        machineTypeId: input.machineTypeId || null,
         laborCost: round2(input.laborCost ?? 0),
         overheadCost: round2(input.overheadCost ?? 0),
         notes: input.notes ?? null,

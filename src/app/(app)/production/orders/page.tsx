@@ -54,6 +54,7 @@ export default async function WorkOrdersPage({ searchParams }: { searchParams: P
                 <TableHead>Order #</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Target Product</TableHead>
+                <TableHead>Machine</TableHead>
                 <TableHead>Warehouse</TableHead>
                 <TableHead className="text-right">Target Qty</TableHead>
                 <TableHead className="text-right">Produced</TableHead>
@@ -65,7 +66,7 @@ export default async function WorkOrdersPage({ searchParams }: { searchParams: P
             <TableBody>
               {orders.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-32 text-center text-muted-foreground">
+                  <TableCell colSpan={10} className="h-32 text-center text-muted-foreground">
                     No work orders found.
                   </TableCell>
                 </TableRow>
@@ -82,6 +83,7 @@ export default async function WorkOrdersPage({ searchParams }: { searchParams: P
                       <div className="font-medium">{wo.productName}</div>
                       <div className="text-xs text-muted-foreground">{wo.productSku}</div>
                     </TableCell>
+                    <TableCell>{wo.machineTypeName ?? "—"}</TableCell>
                     <TableCell>{wo.warehouseName}</TableCell>
                     <TableCell className="text-right">
                       {formatQty(wo.targetQty)} {wo.unitCode ?? "pcs"}

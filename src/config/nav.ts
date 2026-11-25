@@ -104,6 +104,8 @@ export const NAV: NavGroup[] = [
     items: [
       { title: "Work Orders", href: "/production/orders", icon: ClipboardCheck, permission: "production.view", keywords: "manufacturing work order job" },
       { title: "Bill of Materials", href: "/production/bom", icon: Layers, permission: "production.view", keywords: "bom recipe assembly formula" },
+      { title: "Machine Types", href: "/production/machines", icon: Settings2, permission: "production.view", keywords: "machine equipment plant" },
+      { title: "Machine Report", href: "/production/machine-report", icon: BarChart3, permission: "production.view", keywords: "machine production output report" },
     ],
   },
   {
