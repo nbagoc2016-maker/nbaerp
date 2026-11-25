@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Building2, MapPin, Phone, Plus, Star, Store, Truck, User, Warehouse } from "lucide-react";
+import { Building2, CartonIcon, DoorOpen, MapPin, Phone, Plus, Star, Store, Truck, TruckIcon, User, Warehouse } from "lucide-react";
 import { EmptyState } from "@/components/app/empty-state";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { can, requirePermission } from "@/server/auth";
 import { listWarehouses } from "@/server/queries/inventory";
 
-const ICONS = { warehouse: Warehouse, shop: Store, transit: Truck } as const;
+const ICONS = { warehouse: Warehouse, shop: Store, transit: Truck, production_hall: Building2, gate_area: DoorOpen, dispatch_area: TruckIcon, distribution: CartonIcon } as const;
 
 export default async function WarehousesPage() {
   const user = await requirePermission("inventory.view");

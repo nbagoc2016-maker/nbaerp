@@ -75,7 +75,7 @@ export function RemainingBar({ value, max }: { value: number; max: number }) {
   );
 }
 
-export const WAREHOUSE_TYPES = { warehouse: "Warehouse", shop: "Shop", transit: "In transit" } as const;
+export const WAREHOUSE_TYPES = { warehouse: "Warehouse", shop: "Shop", transit: "In transit", distribution: "Distribution", production_hall: "Production Hall", gate_area: "Gate Area", dispatch_area: "Dispatch" } as const;
 
 export const ADJUSTMENT_REASON_LABELS: Record<string, string> = {
   damage: "Damaged",

@@ -152,7 +152,7 @@ export const warehouseSchema = z.object({
   id: optId,
   code: z.string().trim().min(1, "Code is required").max(20).transform((v) => v.toUpperCase()),
   name: z.string().trim().min(1, "Name is required").max(120),
-  type: z.enum(["warehouse", "shop", "transit"]).default("warehouse"),
+  type: z.enum(["warehouse", "shop", "transit", "production_hall", "gate_area", "dispatch_area", "distribution"]).default("warehouse"),
   address: zOptText,
   phone: zOptText,
   managerName: zOptText,

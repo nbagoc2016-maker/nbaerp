@@ -19,7 +19,7 @@ export interface WarehouseFormValue {
   id?: string | null;
   code: string;
   name: string;
-  type: "warehouse" | "shop" | "transit";
+  type: "warehouse" | "shop" | "transit" | "production_hall" | "gate_area" | "dispatch_area" | "distribution";
   address: string;
   phone: string;
   managerName: string;
