@@ -45,6 +45,16 @@ export const PERMISSION_GROUPS = [
     ],
   },
   {
+    module: "production",
+    label: "Production / Manufacturing",
+    permissions: [
+      { key: "production.view", label: "View bill of materials & work orders" },
+      { key: "production.manage", label: "Create & edit BOMs and work orders" },
+      { key: "production.complete", label: "Complete work orders and post finished goods" },
+      { key: "production.cancel", label: "Cancel work orders" },
+    ],
+  },
+  {
     module: "parties",
     label: "Customers & Suppliers",
     permissions: [

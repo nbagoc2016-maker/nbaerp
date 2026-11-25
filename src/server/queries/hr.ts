@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, desc, eq, gte, inArray, lte, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, lte, or, SQL, sql } from "drizzle-orm";
 import { db } from "@/db";
 import * as s from "@/db/schema";
 import { monthLabel, round2, today } from "@/lib/format";
@@ -187,11 +187,13 @@ async function isPeriodPosted(period: string) {
 
 /** Employees to show on a day's sheet: employed on that date. */
 function employedOn(from: string, to: string) {
-  return and(
+  const test: SQL<unknown> | undefined = and(
     lte(s.employees.joinDate, to),
     or(sql`${s.employees.leaveDate} is null`, gte(s.employees.leaveDate, from)),
     or(inArray(s.employees.status, ["active", "on_leave"]), gte(s.employees.leaveDate, from))
   );
+  console.log("test", test?.queryChunks);
+  return test;
 }
 
 export async function attendanceSheet(date: string) {
@@ -201,6 +203,9 @@ export async function attendanceSheet(date: string) {
     .leftJoin(s.departments, eq(s.departments.id, s.employees.departmentId))
     .where(employedOn(date, date))
     .orderBy(asc(s.employees.name));
+  console.log("staff", staff);
+  console.log("date", date);
+  console.log("employ", employedOn(date, date));
   const marks = await db.select().from(s.attendance).where(eq(s.attendance.date, date));
   const byEmp = new Map(marks.map((m) => [m.employeeId, m]));
   return {

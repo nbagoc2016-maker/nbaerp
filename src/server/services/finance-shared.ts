@@ -204,6 +204,7 @@ export const SOURCE_LABELS: Record<JournalSource, string> = {
   supplier_payment: "Supplier payment",
   stock_adjustment: "Stock adjustment",
   stock_count: "Stock count",
+  production: "Production / Manufacturing",
   expense: "Expense",
   petty_cash: "Petty cash",
   bank_transfer: "Bank transfer",

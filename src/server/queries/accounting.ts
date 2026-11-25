@@ -44,6 +44,9 @@ export async function groupAccounts() {
 // ---- Journals ---------------------------------------------------------------------------------
 
 export async function listJournals(f: { from: string; to: string; source?: string; status?: string }) {
+  console.log("listJournals", f);
+  console.log("journalEntries", s.journalEntries.date.name);
+  console.log("S", s);
   const where = range(s.journalEntries.date, f);
   if (f.source) where.push(eq(s.journalEntries.sourceType, f.source as JournalSource));
   if (f.status === "posted" || f.status === "void") where.push(eq(s.journalEntries.status, f.status));

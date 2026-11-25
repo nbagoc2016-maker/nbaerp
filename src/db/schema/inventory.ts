@@ -56,6 +56,8 @@ export const STOCK_SOURCES = [
   "transfer_in",
   "adjustment",
   "stock_count",
+  "production_issue",
+  "production_receipt",
 ] as const;
 
 // Immutable stock ledger. qty is signed: + in, - out.

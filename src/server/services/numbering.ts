@@ -29,6 +29,8 @@ export const SERIES = {
   SUPP: { label: "Supplier Code", prefix: "S-" },
   EMP: { label: "Employee Code", prefix: "E-" },
   SKU: { label: "Product SKU", prefix: "P-" },
+  BOM: { label: "Bill of Materials", prefix: "BOM-" },
+  WO: { label: "Work Order", prefix: "WO-" },
 } as const;
 
 export type SeriesKey = keyof typeof SERIES;

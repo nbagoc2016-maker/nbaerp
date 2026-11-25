@@ -100,6 +100,13 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
+    title: "Production",
+    items: [
+      { title: "Work Orders", href: "/production/orders", icon: ClipboardCheck, permission: "production.view", keywords: "manufacturing work order job" },
+      { title: "Bill of Materials", href: "/production/bom", icon: Layers, permission: "production.view", keywords: "bom recipe assembly formula" },
+    ],
+  },
+  {
     title: "Accounting",
     items: [
       { title: "Chart of Accounts", href: "/accounting/accounts", icon: ListTree, permission: "accounting.view", keywords: "coa" },

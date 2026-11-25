@@ -66,6 +66,7 @@ export const JOURNAL_SOURCES = [
   "supplier_payment",
   "stock_adjustment",
   "stock_count",
+  "production",
   "expense",
   "petty_cash",
   "bank_transfer",

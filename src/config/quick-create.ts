@@ -10,6 +10,8 @@ export const QUICK_CREATE: { title: string; href: string; icon: LucideIcon; perm
   { title: "Customer Receipt", href: "/sales/receipts/new", icon: HandCoins, permission: "sales.receipts" },
   { title: "Purchase Order", href: "/purchasing/orders/new", icon: ShoppingCart, permission: "purchasing.create" },
   { title: "Product", href: "/inventory/products/new", icon: Package, permission: "inventory.manage" },
+  { title: "Work Order", href: "/production/orders/new", icon: ClipboardList, permission: "production.manage" },
+  { title: "Bill of Materials", href: "/production/bom/new", icon: BookOpen, permission: "production.manage" },
   { title: "Expense", href: "/accounting/expenses/new", icon: Wallet, permission: "accounting.expenses" },
   { title: "Petty Cash Voucher", href: "/accounting/petty-cash/new", icon: Coins, permission: "accounting.pettycash" },
   { title: "Journal Entry", href: "/accounting/journals/new", icon: BookOpen, permission: "accounting.journal" },

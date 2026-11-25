@@ -25,6 +25,7 @@ export default async function JournalsPage({ searchParams }: { searchParams: Pro
   const canPost = can(user, "accounting.journal");
 
   return (
+    console.log("rows", rows),
     <>
       <PageHeader
         title="Journal Entries"

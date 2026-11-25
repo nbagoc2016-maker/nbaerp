@@ -21,12 +21,24 @@ export default async function TransfersPage() {
         description="Move stock between warehouses and shops at cost."
         actions={
           canCreate && (
-            <Button asChild>
-              <Link href="/inventory/transfers/new">
-                <Plus className="size-4" />
-                New transfer
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline">
+                <Link href="/inventory/transfers/new?intent=issue">
+                  Issue to Production
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/inventory/transfers/new?intent=dispatch">
+                  Dispatch Finished Goods
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/inventory/transfers/new">
+                  <Plus className="size-4" />
+                  New transfer
+                </Link>
+              </Button>
+            </div>
           )
         }
       />

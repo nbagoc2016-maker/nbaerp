@@ -70,7 +70,7 @@ export const warehouses = pgTable("warehouses", {
   id: id(),
   code: text("code").notNull().unique(),
   name: text("name").notNull(),
-  type: text("type", { enum: ["warehouse", "shop", "transit"] }).notNull().default("warehouse"),
+  type: text("type", { enum: ["gate_area", "warehouse", "shop", "transit", "production_hall", "distribution", "dispatch_area"] }).notNull().default("warehouse"),
   address: text("address"),
   phone: text("phone"),
   managerName: text("manager_name"),

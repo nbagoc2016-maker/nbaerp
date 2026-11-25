@@ -7,10 +7,12 @@ export const SOURCE_LABELS: Record<string, string> = {
   purchase_return: "Purchase return",
   sales_invoice: "Sales invoice",
   sales_return: "Sales return",
-  transfer_out: "Transfer out",
-  transfer_in: "Transfer in",
+  transfer_out: "Dispatch (Transfer Out)",
+  transfer_in: "Issue / Receipt (Transfer In)",
   adjustment: "Adjustment",
   stock_count: "Stock count",
+  production_issue: "Production Issue",
+  production_receipt: "Production Receipt",
 };
 
 /**
@@ -36,6 +38,9 @@ export function sourceHref(kind: string, sourceId: string | null | undefined): s
     case "transfer_in":
     case "transfer_out":
       return `/inventory/transfers/${sourceId}`;
+    case "production_issue":
+    case "production_receipt":
+      return `/production/orders/${sourceId}`;
     case "adjustment":
       return `/inventory/adjustments/${sourceId}`;
     case "stock_count":
