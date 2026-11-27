@@ -5,8 +5,9 @@ import { SegmentLinks } from "@/components/hr/segment-links";
 import { DayPicker, MonthPicker } from "@/components/hr/url-pickers";
 import { formatDate, monthLabel, today } from "@/lib/format";
 import { can, requirePermission } from "@/server/auth";
-import { attendanceMonth, attendanceSheet } from "@/server/queries/hr";
+import { attendanceMonth, attendanceSheet, departmentsWithCounts } from "@/server/queries/hr";
 import { isSunday, workingDaysBetween, periodEnd, periodStart } from "@/server/services/hr-dates";
+
 
 export default async function AttendancePage({ searchParams }: { searchParams: Promise<{ view?: string; date?: string; month?: string }> }) {
   const user = await requirePermission(["hr.attendance", "hr.view"]);
@@ -42,6 +43,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
   }
 
   const sheet = await attendanceSheet(date);
+  const departments = await departmentsWithCounts();
   return (
     <>
       <PageHeader
@@ -60,6 +62,7 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
         canEdit={can(user, "hr.attendance")}
         canManage={can(user, "hr.manage")}
         isSunday={isSunday(date)}
+        ALLdepartments={departments}
       />
     </>
   );

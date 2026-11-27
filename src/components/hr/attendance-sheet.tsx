@@ -14,8 +14,11 @@ import type { SheetRow } from "@/server/queries/hr";
 import type { AttendanceStatus } from "@/server/services/hr-schemas";
 import { ATTENDANCE_META, STATUS_ORDER } from "./attendance-style";
 import { EmployeeCell } from "./employee-avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronDown } from "lucide-react";
 
 type Mark = { status: AttendanceStatus | null; checkIn: string; checkOut: string; overtimeHours: string; notes: string };
+type dept = { id: string, name: string, employees: number };
 
 const toMark = (r: SheetRow): Mark => ({
   status: r.status,
@@ -38,6 +41,7 @@ export function AttendanceSheet({
   canEdit,
   isSunday,
   canManage,
+  ALLdepartments,
 }: {
   date: string;
   rows: SheetRow[];
@@ -45,6 +49,7 @@ export function AttendanceSheet({
   canEdit: boolean;
   isSunday: boolean;
   canManage: boolean;
+  ALLdepartments: dept[];
 }) {
   const initial = useMemo(() => Object.fromEntries(rows.map((r) => [r.id, toMark(r)])) as Record<string, Mark>, [rows]);
   const [marks, setMarks] = useState(initial);
@@ -52,6 +57,7 @@ export function AttendanceSheet({
   const [q, setQ] = useState("");
   const { run, pending } = useAction();
   const readOnly = locked || !canEdit;
+  const [selectedDepartment, setSelectedDepartment] = useState<{ id: string, name: string } | null>(null);
 
   // A different date (or fresh server data) resets the sheet
   // Only reset local edits when the server data really changed (not on every refresh)
@@ -73,9 +79,11 @@ export function AttendanceSheet({
     return c;
   }, [rows, marks]);
 
-  const visible = q.trim()
-    ? rows.filter((r) => `${r.name} ${r.code} ${r.designation ?? ""} ${r.department ?? ""}`.toLowerCase().includes(q.trim().toLowerCase()))
-    : rows;
+  const visible = rows.filter((r) => {
+    if (selectedDepartment && r.department !== selectedDepartment.name) return false;
+    if (!q.trim()) return true;
+    return `${r.name} ${r.code} ${r.designation ?? ""} ${r.department ?? ""}`.toLowerCase().includes(q.trim().toLowerCase());
+  });
 
   const update = (id: string, patch: Partial<Mark>) => setMarks((m) => ({ ...m, [id]: { ...m[id], ...patch } }));
   const setStatus = (id: string, s: AttendanceStatus) => update(id, { status: marks[id].status === s ? null : s });
@@ -148,6 +156,47 @@ export function AttendanceSheet({
             </span>
           ))}
           {counts.unmarked > 0 && <span className="rounded-full bg-muted px-2 py-0.5 font-medium text-muted-foreground">Not marked {counts.unmarked}</span>}
+          <div className="relative">
+            <Select
+              value={selectedDepartment ? String(selectedDepartment.id) : "all"}
+              onValueChange={(v) =>
+                setSelectedDepartment(
+                  v === "all" ? null : ALLdepartments.find((d: dept) => d.id === v) || null
+                )
+              }
+            >
+              {/* Removed 'text-white' from SelectValue */}
+              <SelectTrigger className="w-[220px] h-9 border border-slate-300 rounded-lg px-3 py-2 text-lg text-white focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 data-[placeholder]:text-slate-400">
+                <SelectValue
+                  className="flex-1 truncate text-left" // ✅ Removed text-white
+                  placeholder="Filter by department"
+                />
+              </SelectTrigger>
+
+              <SelectContent
+                position="popper"
+                sideOffset={4}
+                className="z-50 min-w-[220px] overflow-hidden rounded-lg border border-slate-300 bg-white shadow-md"
+              >
+                <SelectItem
+                  value="all"
+                  className="cursor-pointer px-3 py-2 text-md text-slate-800 focus:bg-slate-100 focus:text-slate-900 data-[state=checked]:bg-slate-100"
+                >
+                  All Departments
+                </SelectItem>
+
+                {ALLdepartments.map((d: dept) => (
+                  <SelectItem
+                    key={d.id}
+                    value={d.id}
+                    className="cursor-pointer px-3 py-2 text-sm text-slate-800 focus:bg-slate-100 focus:text-slate-900 data-[state=checked]:bg-slate-100"
+                  >
+                    {d.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         {!readOnly && (
           <div className="ml-auto flex gap-2">

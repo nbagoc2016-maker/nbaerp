@@ -455,3 +455,5 @@ export async function suggestedNextPeriod() {
   const next = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`;
   return next > current ? current : next;
 }
+
+
